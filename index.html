@@ -151,6 +151,7 @@ input[type="file"]{display:none;}
         <div class="step-num" style="background:#059669;color:white;">3</div>
         <span style="font-weight:600;color:#49267F;font-size:.875rem;">Catalogo de Productos</span>
         <span style="font-size:.72rem;color:#9ca3af;font-style:italic;">(opcional)</span>
+        <span id="cache3-badge" class="hidden" style="font-size:.65rem;background:#dcfce7;color:#166534;border:1px solid #86efac;padding:2px 7px;border-radius:20px;font-weight:600;">💾 En caché</span>
       </div>
       <p style="font-size:.72rem;color:#9ca3af;margin:0 0 8px 36px;font-family:monospace;background:#f9fafb;padding:6px 8px;border-radius:6px;">ID - Cod.Barras - Ref.Interna - Nombre - Marca - Laboratorio - Linea Lab.</p>
       <label for="file3" class="drop-zone" id="zone3" style="display:block;padding:20px;text-align:center;cursor:pointer;"
@@ -166,6 +167,13 @@ input[type="file"]{display:none;}
         </div>
       </label>
       <input type="file" id="file3" accept=".xlsx,.xls" onchange="loadFile(3,this)"/>
+      <div id="btn-update3-wrap" class="hidden" style="margin-top:8px;text-align:right;">
+        <label for="file3-update" style="font-size:.72rem;color:#059669;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #86efac;padding:4px 10px;border-radius:8px;transition:background .2s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Actualizar archivo
+        </label>
+        <input type="file" id="file3-update" accept=".xlsx,.xls" style="display:none;" onchange="loadFile(3,this,true)"/>
+      </div>
     </div>
 
     <!-- F4 -->
@@ -174,6 +182,7 @@ input[type="file"]{display:none;}
         <div class="step-num" style="background:#d97706;color:white;">4</div>
         <span style="font-weight:600;color:#49267F;font-size:.875rem;">Listado de Proveedores</span>
         <span style="font-size:.72rem;color:#9ca3af;font-style:italic;">(opcional)</span>
+        <span id="cache4-badge" class="hidden" style="font-size:.65rem;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;padding:2px 7px;border-radius:20px;font-weight:600;">💾 En caché</span>
       </div>
       <p style="font-size:.72rem;color:#9ca3af;margin:0 0 8px 36px;font-family:monospace;background:#f9fafb;padding:6px 8px;border-radius:6px;">ID - Nombre en pantalla</p>
       <label for="file4" class="drop-zone" id="zone4" style="display:block;padding:20px;text-align:center;cursor:pointer;"
@@ -189,6 +198,13 @@ input[type="file"]{display:none;}
         </div>
       </label>
       <input type="file" id="file4" accept=".xlsx,.xls" onchange="loadFile(4,this)"/>
+      <div id="btn-update4-wrap" class="hidden" style="margin-top:8px;text-align:right;">
+        <label for="file4-update" style="font-size:.72rem;color:#d97706;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:4px;background:#fffbeb;border:1px solid #fcd34d;padding:4px 10px;border-radius:8px;transition:background .2s;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background='#fffbeb'">
+          <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Actualizar archivo
+        </label>
+        <input type="file" id="file4-update" accept=".xlsx,.xls" style="display:none;" onchange="loadFile(4,this,true)"/>
+      </div>
     </div>
 
   </div>
@@ -496,7 +512,7 @@ function colFind(headers,candidates){
 
 function sv(v){return String(v===null||v===undefined?'':v).trim();}
 
-function loadFile(num,input){
+function loadFile(num,input,isUpdate){
   var file=input.files[0]; if(!file) return;
   var reader=new FileReader();
   reader.onload=function(e){
@@ -521,6 +537,13 @@ function loadFile(num,input){
       }else if(num===3){
         data3=rows; hasCatalog=true; markLoaded(3,file.name,rows.length);
         resolveC3Cols();
+        // Guardar en localStorage
+        try{
+          localStorage.setItem('cache_file3_rows', JSON.stringify(rows));
+          localStorage.setItem('cache_file3_name', file.name);
+          localStorage.setItem('cache_file3_count', rows.length);
+          showCacheBadge(3);
+        }catch(lsErr){console.warn('localStorage no disponible:',lsErr);}
       }else{
         var cName=colFind(h,['Nombre en pantalla','nombre en pantalla','Nombre','nombre']);
         var cId=colFind(h,['ID','id','Id externo','id externo']);
@@ -528,13 +551,22 @@ function loadFile(num,input){
         if(!cName||!cId){toastErr('Arch.4: columnas no encontradas: '+h.slice(0,5).join(', '));return;}
         provList=rows.map(function(r){return{name:sv(r[cName]),id:sv(r[cId]),ruc:cRuc?sv(r[cRuc]):''};}).filter(function(p){return p.name&&p.id;});
         data4=rows; hasProviders=true; markLoaded(4,file.name,provList.length);
+        // Guardar en localStorage
+        try{
+          localStorage.setItem('cache_file4_rows', JSON.stringify(rows));
+          localStorage.setItem('cache_file4_name', file.name);
+          localStorage.setItem('cache_file4_count', provList.length);
+          showCacheBadge(4);
+        }catch(lsErr){console.warn('localStorage no disponible:',lsErr);}
       }
       if(data1&&data2){
         document.getElementById('btn-comparar').disabled=false;
         document.getElementById('badge-estado').textContent='Archivos listos - Presiona Ejecutar';
         document.getElementById('badge-estado').style.color='#fde68a';
       }
-      toastOk('Archivo '+num+' cargado: '+rows.length.toLocaleString()+' registros.');
+      var msg=isUpdate?'Archivo actualizado: '+rows.length.toLocaleString()+' registros.'
+                      :'Archivo '+num+' cargado: '+rows.length.toLocaleString()+' registros.';
+      toastOk(msg);
     }catch(err){
       console.error('loadFile error:',err);
       toastErr('Error al leer el archivo: '+err.message);
@@ -542,6 +574,51 @@ function loadFile(num,input){
   };
   reader.readAsArrayBuffer(file);
 }
+
+function showCacheBadge(num){
+  var badge=document.getElementById('cache'+num+'-badge');
+  var btnWrap=document.getElementById('btn-update'+num+'-wrap');
+  if(badge) badge.classList.remove('hidden');
+  if(btnWrap) btnWrap.classList.remove('hidden');
+}
+
+function restoreFromCache(){
+  // Restaurar archivo 3 (Catálogo)
+  try{
+    var rows3=localStorage.getItem('cache_file3_rows');
+    var name3=localStorage.getItem('cache_file3_name');
+    var count3=localStorage.getItem('cache_file3_count');
+    if(rows3&&name3){
+      data3=JSON.parse(rows3); hasCatalog=true;
+      markLoaded(3,name3,parseInt(count3)||data3.length);
+      resolveC3Cols();
+      showCacheBadge(3);
+    }
+  }catch(e){console.warn('Error restaurando cache archivo 3:',e);}
+
+  // Restaurar archivo 4 (Proveedores)
+  try{
+    var rows4=localStorage.getItem('cache_file4_rows');
+    var name4=localStorage.getItem('cache_file4_name');
+    var count4=localStorage.getItem('cache_file4_count');
+    if(rows4&&name4){
+      var r4=JSON.parse(rows4);
+      var h4=Object.keys(r4[0]||{});
+      var cName=colFind(h4,['Nombre en pantalla','nombre en pantalla','Nombre','nombre']);
+      var cId=colFind(h4,['ID','id','Id externo','id externo']);
+      var cRuc=colFind(h4,['NIF','nif','RUC','ruc','Nif']);
+      if(cName&&cId){
+        provList=r4.map(function(r){return{name:sv(r[cName]),id:sv(r[cId]),ruc:cRuc?sv(r[cRuc]):''};}).filter(function(p){return p.name&&p.id;});
+        data4=r4; hasProviders=true;
+        markLoaded(4,name4,parseInt(count4)||provList.length);
+        showCacheBadge(4);
+      }
+    }
+  }catch(e){console.warn('Error restaurando cache archivo 4:',e);}
+}
+
+// Restaurar al cargar la página
+document.addEventListener('DOMContentLoaded', restoreFromCache);
 
 function markLoaded(num,name,count){
   var z=document.getElementById('zone'+num);
