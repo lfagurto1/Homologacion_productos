@@ -537,13 +537,9 @@ function loadFile(num,input,isUpdate){
       }else if(num===3){
         data3=rows; hasCatalog=true; markLoaded(3,file.name,rows.length);
         resolveC3Cols();
-        // Guardar en localStorage
-        try{
-          localStorage.setItem('cache_file3_rows', JSON.stringify(rows));
-          localStorage.setItem('cache_file3_name', file.name);
-          localStorage.setItem('cache_file3_count', rows.length);
-          showCacheBadge(3);
-        }catch(lsErr){console.warn('localStorage no disponible:',lsErr);}
+        // Guardar en IndexedDB (soporta archivos grandes)
+        idbSave3(rows,file.name,rows.length);
+        showCacheBadge(3);
       }else{
         var cName=colFind(h,['Nombre en pantalla','nombre en pantalla','Nombre','nombre']);
         var cId=colFind(h,['ID','id','Id externo','id externo']);
@@ -582,21 +578,60 @@ function showCacheBadge(num){
   if(btnWrap) btnWrap.classList.remove('hidden');
 }
 
+// ── IndexedDB helpers para archivo 3 (catálogo grande) ──────────────────────
+var _idb=null;
+function openIDB(cb){
+  if(_idb){cb(_idb);return;}
+  var req=indexedDB.open('ComparadorDB',1);
+  req.onupgradeneeded=function(e){
+    var db=e.target.result;
+    if(!db.objectStoreNames.contains('cache3')) db.createObjectStore('cache3');
+  };
+  req.onsuccess=function(e){_idb=e.target.result;cb(_idb);};
+  req.onerror=function(){console.warn('IndexedDB no disponible');cb(null);};
+}
+
+function idbSave3(rows,name,count){
+  openIDB(function(db){
+    if(!db) return;
+    try{
+      var tx=db.transaction('cache3','readwrite');
+      var st=tx.objectStore('cache3');
+      st.put(rows,'rows');
+      st.put(name,'name');
+      st.put(count,'count');
+    }catch(e){console.warn('idbSave3 error:',e);}
+  });
+}
+
+function idbRestore3(cb){
+  openIDB(function(db){
+    if(!db){cb(null,null,null);return;}
+    try{
+      var tx=db.transaction('cache3','readonly');
+      var st=tx.objectStore('cache3');
+      var rows=null,name=null,count=null,done=0;
+      function check(){if(++done===3) cb(rows,name,count);}
+      st.get('rows').onsuccess=function(e){rows=e.target.result;check();};
+      st.get('name').onsuccess=function(e){name=e.target.result;check();};
+      st.get('count').onsuccess=function(e){count=e.target.result;check();};
+    }catch(e){console.warn('idbRestore3 error:',e);cb(null,null,null);}
+  });
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 function restoreFromCache(){
-  // Restaurar archivo 3 (Catálogo)
-  try{
-    var rows3=localStorage.getItem('cache_file3_rows');
-    var name3=localStorage.getItem('cache_file3_name');
-    var count3=localStorage.getItem('cache_file3_count');
-    if(rows3&&name3){
-      data3=JSON.parse(rows3); hasCatalog=true;
-      markLoaded(3,name3,parseInt(count3)||data3.length);
+  // Restaurar archivo 3 (Catálogo) — usa IndexedDB por su tamaño
+  idbRestore3(function(rows3,name3,count3){
+    if(rows3&&name3&&rows3.length){
+      data3=rows3; hasCatalog=true;
+      markLoaded(3,name3,count3||data3.length);
       resolveC3Cols();
       showCacheBadge(3);
     }
-  }catch(e){console.warn('Error restaurando cache archivo 3:',e);}
+  });
 
-  // Restaurar archivo 4 (Proveedores)
+  // Restaurar archivo 4 (Proveedores) — sigue en localStorage (es pequeño)
   try{
     var rows4=localStorage.getItem('cache_file4_rows');
     var name4=localStorage.getItem('cache_file4_name');
