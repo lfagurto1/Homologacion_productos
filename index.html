@@ -152,6 +152,7 @@ input[type="file"]{display:none;}
         <span style="font-weight:600;color:#49267F;font-size:.875rem;">Catalogo de Productos</span>
         <span style="font-size:.72rem;color:#9ca3af;font-style:italic;">(opcional)</span>
         <span id="cache3-badge" class="hidden" style="font-size:.65rem;background:#dcfce7;color:#166534;border:1px solid #86efac;padding:2px 7px;border-radius:20px;font-weight:600;">💾 En caché</span>
+        <button id="cache3-clear-btn" class="hidden" onclick="clearCache3()" style="font-size:.62rem;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;padding:2px 7px;border-radius:20px;font-weight:600;cursor:pointer;" title="Eliminar catálogo guardado">✕ Limpiar caché</button>
       </div>
       <p style="font-size:.72rem;color:#9ca3af;margin:0 0 8px 36px;font-family:monospace;background:#f9fafb;padding:6px 8px;border-radius:6px;">ID - Cod.Barras - Ref.Interna - Nombre - Marca - Laboratorio - Linea Lab.</p>
       <label for="file3" class="drop-zone" id="zone3" style="display:block;padding:20px;text-align:center;cursor:pointer;"
@@ -419,6 +420,47 @@ input[type="file"]{display:none;}
       </div>
     </div>
   </div>
+
+  <!-- EML Batch Importer -->
+  <div class="card" style="margin-bottom:20px;border:2px solid #bfdbfe;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <div style="width:28px;height:28px;background:linear-gradient(135deg,#1d4ed8,#49267F);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="15" height="15" fill="none" stroke="white" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
+      <span style="font-weight:700;color:#1d4ed8;font-size:.9rem;">📧 Importar correos de Outlook (.eml) — Carga masiva</span>
+      <span style="font-size:.65rem;background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;padding:2px 7px;border-radius:20px;font-weight:600;">Nuevo</span>
+    </div>
+    <p style="font-size:.75rem;color:#6b7280;margin:0 0 4px 36px;">En Outlook: clic derecho en el correo → <strong>Guardar como</strong> → <strong>Guardar como EML</strong>. Puedes subir <strong>varios correos a la vez</strong>.</p>
+    <p style="font-size:.72rem;color:#9ca3af;margin:0 0 14px 36px;">Todos los productos de todos los correos se agregan automaticamente a la cola de homologacion.</p>
+
+    <!-- Drop zone EML -->
+    <label for="eml-input" id="eml-drop-zone" class="drop-zone" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;text-align:center;cursor:pointer;min-height:100px;">
+      <div id="eml-dz-idle" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <svg width="40" height="40" fill="none" stroke="#93c5fd" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span style="font-weight:700;color:#1d4ed8;font-size:.9rem;">Arrastra aqui tus archivos .eml</span>
+        <span style="font-size:.75rem;color:#9ca3af;">o haz clic para seleccionar — puedes subir varios a la vez</span>
+      </div>
+      <div id="eml-dz-processing" class="hidden" style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <svg style="animation:spin 1s linear infinite;" width="32" height="32" fill="none" stroke="#1d4ed8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span id="eml-progress-label" style="font-weight:600;color:#1d4ed8;font-size:.82rem;">Procesando correos...</span>
+      </div>
+    </label>
+    <input type="file" id="eml-input" accept=".eml,.msg" multiple style="display:none;" onchange="onEmlSelected(this)"/>
+
+    <!-- Results summary -->
+    <div id="eml-results-wrap" class="hidden" style="margin-top:16px;">
+      <div id="eml-results-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span id="eml-total-label" style="font-size:.82rem;font-weight:600;color:#1d4ed8;"></span>
+        <button onclick="addAllEmlToQueue()" class="btn-violet" id="eml-add-all-btn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Agregar todos a la cola
+        </button>
+      </div>
+    </div>
+    <div id="eml-error-global" class="hidden" style="margin-top:10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.78rem;color:#991b1b;"></div>
+  </div>
+  <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
 
   <!-- Datos proveedor -->
   <div class="card" style="margin-bottom:20px;">
@@ -1283,6 +1325,451 @@ function _doExportManual(prov){
 
 function toastOk(msg){Swal.fire({toast:true,position:'top-end',icon:'success',title:msg,showConfirmButton:false,timer:3000,timerProgressBar:true,background:'#f0fdf4',color:'#166534'});}
 function toastErr(msg){Swal.fire({toast:true,position:'top-end',icon:'error',title:msg,showConfirmButton:false,timer:4500,background:'#fef2f2',color:'#991b1b'});}
+
+// ── Cache 3 clear ──────────────────────────────────────────────────────────────
+function clearCache3(){
+  Swal.fire({title:'Limpiar caché del catálogo?',text:'Deberás cargar el archivo nuevamente.',icon:'warning',showCancelButton:true,confirmButtonText:'Sí, limpiar',cancelButtonText:'Cancelar',confirmButtonColor:'#FF3B1F'}).then(function(r){
+    if(!r.isConfirmed) return;
+    openIDB(function(db){
+      if(db){try{var tx=db.transaction('cache3','readwrite');tx.objectStore('cache3').clear();}catch(e){}}
+    });
+    data3=null; hasCatalog=false; _c3Barras=null; _c3Ref=null; _c3Nom=null; _c3Lin=null; _c3Id=null;
+    var z=document.getElementById('zone3');
+    z.className=z.className.replace(/loaded-\d/g,'');
+    document.getElementById('zone3-icon').classList.remove('hidden');
+    document.getElementById('zone3-loaded').classList.add('hidden');
+    document.getElementById('zone3-loaded').style.display='';
+    document.getElementById('cache3-badge').classList.add('hidden');
+    document.getElementById('cache3-clear-btn').classList.add('hidden');
+    document.getElementById('btn-update3-wrap').classList.add('hidden');
+    toastOk('Caché del catálogo eliminado.');
+  });
+}
+
+// Patch showCacheBadge to also show clear button for cache 3
+var _origShowCacheBadge = showCacheBadge;
+showCacheBadge = function(num){
+  _origShowCacheBadge(num);
+  if(num===3){
+    var btn=document.getElementById('cache3-clear-btn');
+    if(btn) btn.classList.remove('hidden');
+  }
+};
+
+// ── EML Batch Importer ────────────────────────────────────────────────────────
+var _emlParsedBatch = []; // [{fileName, ruc, oc, proveedor, productos:[{defaultCode,descOC,codXML,descXML,precioOC,precioXML}]}]
+
+// Drag & drop for EML zone
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var dz = document.getElementById('eml-drop-zone');
+    if(!dz) return;
+    dz.addEventListener('dragover', function(e){e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave', function(){dz.classList.remove('drag-over');});
+    dz.addEventListener('drop', function(e){
+      e.preventDefault(); dz.classList.remove('drag-over');
+      var files = e.dataTransfer.files;
+      if(!files||!files.length) return;
+      var inp = document.getElementById('eml-input');
+      var dt = new DataTransfer();
+      for(var i=0;i<files.length;i++) dt.items.add(files[i]);
+      inp.files = dt.files;
+      inp.dispatchEvent(new Event('change'));
+    });
+  });
+})();
+
+function onEmlSelected(input){
+  var files = input.files;
+  if(!files||!files.length) return;
+  _emlParsedBatch = [];
+  document.getElementById('eml-results-wrap').classList.add('hidden');
+  document.getElementById('eml-error-global').classList.add('hidden');
+  document.getElementById('eml-dz-idle').classList.add('hidden');
+  document.getElementById('eml-dz-processing').classList.remove('hidden');
+  document.getElementById('eml-dz-processing').style.display='flex';
+  document.getElementById('eml-progress-label').textContent = 'Procesando 0 / '+files.length+' correos...';
+
+  var fileArr = Array.from(files);
+  var done = 0;
+  var errors = [];
+
+  function processNext(idx){
+    if(idx >= fileArr.length){
+      // All done
+      document.getElementById('eml-dz-processing').classList.add('hidden');
+      document.getElementById('eml-dz-idle').classList.remove('hidden');
+      if(errors.length){
+        document.getElementById('eml-error-global').textContent = 'Errores en '+errors.length+' archivo(s): '+errors.join('; ');
+        document.getElementById('eml-error-global').classList.remove('hidden');
+      }
+      renderEmlResults();
+      return;
+    }
+    var file = fileArr[idx];
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try{
+        var parsed = parseEml(e.target.result, file.name);
+        if(parsed && parsed.productos && parsed.productos.length > 0){
+          _emlParsedBatch.push(parsed);
+        } else {
+          errors.push(file.name+' (sin productos encontrados)');
+        }
+      }catch(err){
+        errors.push(file.name+' ('+err.message+')');
+      }
+      done++;
+      document.getElementById('eml-progress-label').textContent = 'Procesando '+done+' / '+fileArr.length+' correos...';
+      processNext(idx+1);
+    };
+    reader.onerror = function(){
+      errors.push(file.name+' (error de lectura)');
+      done++;
+      processNext(idx+1);
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+  processNext(0);
+}
+
+function decodeQuotedPrintable(str){
+  // Remove soft line breaks
+  var s = str.replace(/=\r?\n/g, '');
+  // Collect all =XX sequences as bytes, decode as UTF-8
+  // We need to handle runs of =XX that form multi-byte UTF-8 characters
+  s = s.replace(/((?:=[0-9A-Fa-f]{2})+)/g, function(run){
+    var bytes = [];
+    var re = /=([0-9A-Fa-f]{2})/g, m;
+    while((m = re.exec(run)) !== null) bytes.push(parseInt(m[1], 16));
+    try{
+      return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
+    }catch(e){
+      // fallback: decode individually as latin-1
+      return bytes.map(function(b){return String.fromCharCode(b);}).join('');
+    }
+  });
+  return s;
+}
+
+function decodeEmlEncoding(str){
+  // Decode =?utf-8?Q?...?= and =?utf-8?B?...?= in headers
+  return str.replace(/=\?([^?]+)\?([BbQq])\?([^?]*)\?=/g, function(_,charset,enc,data){
+    try{
+      if(enc.toUpperCase()==='B'){
+        var bin=atob(data); var bytes=new Uint8Array(bin.length);
+        for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+        return new TextDecoder(charset).decode(bytes);
+      } else {
+        var qp=data.replace(/_/g,' ');
+        var decoded=decodeQuotedPrintable(qp);
+        var bytes2=new Uint8Array(decoded.length);
+        for(var i=0;i<decoded.length;i++) bytes2[i]=decoded.charCodeAt(i);
+        return new TextDecoder(charset).decode(bytes2);
+      }
+    }catch(e){return data;}
+  });
+}
+
+function extractHtmlFromEml(rawEml){
+  // ── Find the last "double blank line" that separates ALL headers from body ──
+  // Outlook EML: tons of MS headers, then blank line, then the HTML body (QP-encoded)
+  // Strategy: find the LAST \r\n\r\n (or \n\n) before the first '<' of the HTML
+  var firstAngle = rawEml.indexOf('<!');
+  if(firstAngle < 0) firstAngle = rawEml.indexOf('<html');
+  if(firstAngle < 0) firstAngle = rawEml.indexOf('<HTML');
+
+  var headerBodySplit = -1;
+  if(firstAngle > 0){
+    // Walk backwards from first HTML tag to find blank line
+    var before = rawEml.substring(0, firstAngle);
+    var idx1 = before.lastIndexOf('\r\n\r\n');
+    var idx2 = before.lastIndexOf('\n\n');
+    headerBodySplit = Math.max(idx1, idx2);
+  }
+  if(headerBodySplit < 0){
+    headerBodySplit = rawEml.indexOf('\r\n\r\n');
+    if(headerBodySplit < 0) headerBodySplit = rawEml.indexOf('\n\n');
+  }
+
+  var headers = rawEml.substring(0, headerBodySplit);
+  var bodyRaw  = rawEml.substring(headerBodySplit).replace(/^\r?\n/,'');
+
+  // ── Detect Content-Transfer-Encoding from headers section ──
+  // Look for the LAST occurrence (closest to the body) to handle multipart correctly
+  var encMatches = headers.match(/Content-Transfer-Encoding:\s*([^\r\n]+)/gi);
+  var enc = '';
+  if(encMatches && encMatches.length){
+    enc = encMatches[encMatches.length-1].replace(/Content-Transfer-Encoding:\s*/i,'').trim().toLowerCase();
+  }
+
+  // ── Check for multipart boundary ──
+  var boundaryMatch = headers.match(/boundary="?([^"\r\n;]+)"?/i);
+  var boundary = boundaryMatch ? boundaryMatch[1].trim() : null;
+
+  if(boundary){
+    // Find the HTML part within multipart
+    var bRe = new RegExp('--'+boundary.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+    var parts = bodyRaw.split(bRe);
+    for(var i=0;i<parts.length;i++){
+      var part = parts[i];
+      if(!/content-type:\s*text\/html/i.test(part)) continue;
+      var pSplit = part.indexOf('\r\n\r\n');
+      if(pSplit < 0) pSplit = part.indexOf('\n\n');
+      var pHeaders = part.substring(0, pSplit);
+      var pBody    = part.substring(pSplit+4);
+      var pEncM    = pHeaders.match(/Content-Transfer-Encoding:\s*([^\r\n]+)/i);
+      var pEnc     = pEncM ? pEncM[1].trim().toLowerCase() : '';
+      if(pEnc === 'quoted-printable') return decodeQuotedPrintable(pBody);
+      if(pEnc === 'base64'){
+        try{ return atob(pBody.replace(/[\r\n\s]/g,'')); }catch(e){ return pBody; }
+      }
+      return pBody;
+    }
+  }
+
+  // ── Non-multipart (most common for these Outlook EMLs) ──
+  if(enc === 'quoted-printable') return decodeQuotedPrintable(bodyRaw);
+  if(enc === 'base64'){
+    try{ return atob(bodyRaw.replace(/[\r\n\s]/g,'')); }catch(e){ return bodyRaw; }
+  }
+
+  // If body already starts with HTML tag, return as-is
+  var trimmed = bodyRaw.trim();
+  if(trimmed.startsWith('<') || trimmed.startsWith('<!')) return trimmed;
+
+  // Last resort: QP-decode anyway (handles cases where header was missed)
+  return decodeQuotedPrintable(bodyRaw);
+}
+
+function parseEml(rawText, fileName){
+  var html = extractHtmlFromEml(rawText);
+
+  // Parse HTML into DOM
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(html, 'text/html');
+
+  // Helper: find a <td> whose text matches label, return the next <td> in same <tr>
+  function getTdVal(labelText){
+    var tds = doc.querySelectorAll('td');
+    for(var i=0;i<tds.length;i++){
+      var t = tds[i].textContent.trim();
+      if(t.replace(/:$/,'').trim().toLowerCase() === labelText.toLowerCase()){
+        // Next sibling td in same tr
+        var row = tds[i].parentElement;
+        if(row){
+          var rowCells = Array.from(row.querySelectorAll('td'));
+          var ci = rowCells.indexOf(tds[i]);
+          if(ci >= 0 && ci+1 < rowCells.length){
+            return rowCells[ci+1].textContent.trim();
+          }
+        }
+      }
+    }
+    // Fallback: partial match
+    for(var j=0;j<tds.length;j++){
+      var t2 = tds[j].textContent.trim().toLowerCase();
+      if(t2.indexOf(labelText.toLowerCase()) >= 0 && t2.length < labelText.length + 10){
+        var row2 = tds[j].parentElement;
+        if(row2){
+          var rowCells2 = Array.from(row2.querySelectorAll('td'));
+          var ci2 = rowCells2.indexOf(tds[j]);
+          if(ci2 >= 0 && ci2+1 < rowCells2.length){
+            return rowCells2[ci2+1].textContent.trim();
+          }
+        }
+      }
+    }
+    return '';
+  }
+
+  var ruc  = getTdVal('RUC');
+  var oc   = getTdVal('Orden de Compra');
+  var prov = getTdVal('Proveedor');
+
+  // Find the products table — has "Default Code" in a th/td
+  var tables = doc.querySelectorAll('table');
+  var prodTable = null;
+  for(var t=0;t<tables.length;t++){
+    var ttext = tables[t].textContent;
+    if(/Default\s*Code/i.test(ttext) && (/Descripci/i.test(ttext) || /C[oó]d\.?\s*Principal/i.test(ttext) || /Principal\s*XML/i.test(ttext))){
+      prodTable = tables[t]; break;
+    }
+  }
+
+  var productos = [];
+  if(prodTable){
+    var rows = prodTable.querySelectorAll('tr');
+    var colMap = {defaultCode:0, descOC:1, codXML:2, descXML:3, precioOC:4, precioXML:5};
+    var headerFound = false;
+
+    for(var r=0;r<rows.length;r++){
+      var cells = rows[r].querySelectorAll('th,td');
+      var texts = Array.from(cells).map(function(c){return c.textContent.trim().toLowerCase().replace(/\s+/g,' ');});
+
+      if(!headerFound && texts.some(function(t){return t.indexOf('default')>=0;})){
+        // Map columns from header
+        texts.forEach(function(t,ci){
+          if(/default\s*code/i.test(t))                          colMap.defaultCode = ci;
+          else if(/descripci.{0,3}n\s*oc/i.test(t))             colMap.descOC      = ci;
+          else if(/c.{0,3}d\.?\s*principal/i.test(t))           colMap.codXML      = ci;
+          else if(/descripci.{0,3}n\s*xml/i.test(t))            colMap.descXML     = ci;
+          else if(/precio\s*oc/i.test(t))                        colMap.precioOC    = ci;
+          else if(/precio\s*xml/i.test(t))                       colMap.precioXML   = ci;
+        });
+        headerFound = true;
+        continue;
+      }
+
+      if(!headerFound) continue;
+      var dataCells = rows[r].querySelectorAll('td');
+      if(dataCells.length < 3) continue;
+
+      function gc(idx){ return dataCells[idx] ? dataCells[idx].textContent.trim() : ''; }
+
+      var dc   = gc(colMap.defaultCode).replace(/[$\s]/g,'');
+      var dOC  = gc(colMap.descOC);
+      var cXML = gc(colMap.codXML).replace(/[$\s]/g,'');
+      var dXML = gc(colMap.descXML);
+      var pOC  = gc(colMap.precioOC).replace(/[$\s]/g,'');
+      var pXML = gc(colMap.precioXML).replace(/[$\s]/g,'');
+
+      if(!dc && !cXML && !dXML) continue;
+
+      productos.push({ defaultCode:dc, descOC:dOC, codXML:cXML, descXML:dXML, precioOC:pOC, precioXML:pXML });
+    }
+  }
+
+  return {fileName:fileName, ruc:ruc, oc:oc, proveedor:prov, productos:productos};
+}
+
+function renderEmlResults(){
+  var wrap = document.getElementById('eml-results-wrap');
+  var list = document.getElementById('eml-results-list');
+  var totalLabel = document.getElementById('eml-total-label');
+
+  if(!_emlParsedBatch.length){
+    document.getElementById('eml-error-global').textContent = 'No se encontraron productos en los correos. Verifica que sean archivos .eml de Homologacion Pendiente.';
+    document.getElementById('eml-error-global').classList.remove('hidden');
+    return;
+  }
+
+  var totalProds = _emlParsedBatch.reduce(function(s,e){return s+e.productos.length;},0);
+  totalLabel.textContent = _emlParsedBatch.length+' correo(s) procesado(s) — '+totalProds+' productos en total listos para agregar';
+
+  list.innerHTML = _emlParsedBatch.map(function(e, ei){
+    var provHtml = e.proveedor ? '<span style="font-weight:700;color:#059669;">'+htmlE(e.proveedor)+'</span>' : '';
+    var rucHtml  = e.ruc ? '<span style="font-family:monospace;font-size:.7rem;color:#6b7280;">RUC: '+htmlE(e.ruc)+'</span>' : '';
+    var ocHtml   = e.oc  ? '<span style="font-size:.7rem;color:#6b7280;">OC: <strong>'+htmlE(e.oc)+'</strong></span>' : '';
+    var prodsHtml = e.productos.map(function(p,pi){
+      return '<tr style="background:'+(pi%2===0?'white':'#f9fafb')+'">'
+        +'<td style="font-family:monospace;font-size:.72rem;font-weight:700;color:#d97706;padding:5px 8px;">'+htmlE(p.defaultCode||'-')+'</td>'
+        +'<td style="font-size:.72rem;padding:5px 8px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+htmlE(p.descOC)+'">'+htmlE(p.descOC||'-')+'</td>'
+        +'<td style="font-family:monospace;font-size:.72rem;padding:5px 8px;color:#49267F;font-weight:600;">'+htmlE(p.codXML||'-')+'</td>'
+        +'<td style="font-size:.72rem;padding:5px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+htmlE(p.descXML)+'">'+htmlE(p.descXML||'-')+'</td>'
+        +'<td style="font-family:monospace;font-size:.72rem;padding:5px 8px;text-align:right;color:#FF3B1F;font-weight:600;">$'+htmlE(p.precioXML||'-')+'</td>'
+        +'</tr>';
+    }).join('');
+    return '<div style="background:white;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">'
+      +'<div style="background:#eff6ff;padding:10px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #dbeafe;">'
+      +'<svg width="14" height="14" fill="none" stroke="#1d4ed8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>'
+      +'<span style="font-size:.72rem;font-weight:600;color:#1e40af;">'+htmlE(e.fileName)+'</span>'
+      +provHtml+rucHtml+ocHtml
+      +'<span style="margin-left:auto;font-size:.7rem;background:#dbeafe;color:#1e40af;border-radius:20px;padding:2px 8px;font-weight:600;">'+e.productos.length+' producto(s)</span>'
+      +'</div>'
+      +'<div style="overflow-x:auto;">'
+      +'<table style="width:100%;border-collapse:collapse;">'
+      +'<thead><tr style="background:#1d4ed8;">'
+      +'<th style="color:white;font-size:.67rem;padding:5px 8px;text-align:left;font-weight:600;">Default Code</th>'
+      +'<th style="color:white;font-size:.67rem;padding:5px 8px;text-align:left;font-weight:600;">Descripción OC</th>'
+      +'<th style="color:white;font-size:.67rem;padding:5px 8px;text-align:left;font-weight:600;">Cód. Principal XML</th>'
+      +'<th style="color:white;font-size:.67rem;padding:5px 8px;text-align:left;font-weight:600;">Descripción XML</th>'
+      +'<th style="color:white;font-size:.67rem;padding:5px 8px;text-align:right;font-weight:600;">Precio XML</th>'
+      +'</tr></thead>'
+      +'<tbody>'+prodsHtml+'</tbody>'
+      +'</table>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  wrap.classList.remove('hidden');
+}
+
+function addAllEmlToQueue(){
+  if(!_emlParsedBatch.length){ toastErr('No hay correos procesados.'); return; }
+  if(!hasCatalog || !data3 || !data3.length){ toastErr('Necesitas cargar el Catálogo (archivo 3) para buscar los productos por Default Code.'); return; }
+
+  if(!_c3Ref) resolveC3Cols();
+
+  // Build catalog index by ref interna for fast lookup
+  var catByRef = {};
+  data3.forEach(function(r){
+    var ref = sv(_c3Ref ? r[_c3Ref] : '');
+    if(ref) catByRef[ref.toLowerCase()] = r;
+  });
+
+  var added = 0, notFound = [], skipped = 0;
+
+  _emlParsedBatch.forEach(function(email){
+    // Try to auto-select provider by RUC
+    var provFound = null;
+    if(email.ruc && provList.length){
+      provFound = provList.find(function(p){ return p.ruc && p.ruc.replace(/\D/g,'') === email.ruc.replace(/\D/g,''); });
+    }
+
+    email.productos.forEach(function(p){
+      var dc = (p.defaultCode||'').trim();
+      var catRow = dc ? catByRef[dc.toLowerCase()] : null;
+
+      if(!catRow){
+        notFound.push(dc||'(sin código)');
+        return;
+      }
+
+      var catBarras = sv(_c3Barras ? catRow[_c3Barras] : '');
+      var catRef    = sv(_c3Ref    ? catRow[_c3Ref]    : '');
+      var catNom    = sv(_c3Nom    ? catRow[_c3Nom]    : '');
+      var catLin    = sv(_c3Lin    ? catRow[_c3Lin]    : '');
+      var catId     = sv(_c3Id     ? catRow[_c3Id]     : '');
+
+      var precio = parseFloat((p.precioXML||p.precioOC||'0').replace(',','.')) || 0;
+
+      // Check duplicate
+      var dup = manualQueue.some(function(q){ return q.catRef===catRef && q.codProv===p.codXML; });
+      if(dup){ skipped++; return; }
+
+      manualQueue.push({
+        catBarras: catBarras,
+        catRef:    catRef,
+        catNom:    catNom,
+        catLin:    catLin,
+        catId:     catId,
+        codProv:   p.codXML   || '',
+        precio:    precio,
+        nomProv:   p.descXML  || ''
+      });
+      added++;
+
+      // Auto-select provider if found and not already set
+      if(provFound && !selProv3.id){
+        selectProv(3, provFound.name, provFound.id);
+      }
+    });
+  });
+
+  renderManualQueue();
+
+  var msg = added+' producto(s) agregados a la cola.';
+  if(skipped>0) msg += ' '+skipped+' duplicado(s) omitido(s).';
+  if(notFound.length>0) msg += ' '+notFound.length+' sin match en catálogo: '+notFound.slice(0,5).join(', ')+(notFound.length>5?'...':'');
+
+  if(added > 0){
+    Swal.fire({title:'¡Carga masiva completada!',html:msg.replace(/\. /g,'.<br>'),icon:'success',confirmButtonColor:'#49267F',timer:6000,timerProgressBar:true});
+    switchTab('manual');
+  } else {
+    toastErr(msg);
+  }
+}
 
 </script>
 </body>
