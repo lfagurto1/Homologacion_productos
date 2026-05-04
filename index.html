@@ -384,20 +384,20 @@ input[type="file"]{display:none;}
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
       <div>
         <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Codigo de barras</label>
-        <input id="man-search-barras" class="input-base" type="text" placeholder="Ej: 7861003200353" oninput="manualSearch()" style="font-family:monospace;"/>
+        <input id="man-search-barras" class="input-base" type="text" placeholder="Ej: 7861003200353" style="font-family:monospace;"/>
       </div>
       <div>
         <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Referencia interna</label>
-        <input id="man-search-ref" class="input-base" type="text" placeholder="Ej: 74647" oninput="manualSearch()" style="font-family:monospace;"/>
+        <input id="man-search-ref" class="input-base" type="text" placeholder="Ej: 74647" style="font-family:monospace;"/>
       </div>
       <div>
         <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Nombre del producto</label>
-        <input id="man-search-nom" class="input-base" type="text" placeholder="Ej: PASTA BLENDAX" oninput="manualSearch()"/>
+        <input id="man-search-nom" class="input-base" type="text" placeholder="Ej: PASTA BLENDAX"/>
       </div>
     </div>
     <div id="man-results-wrap" class="hidden">
-      <p style="font-size:.75rem;color:#6b7280;font-weight:500;margin:0 0 8px;">Resultados - haz clic para seleccionar:</p>
-      <div style="overflow:auto;max-height:200px;border:1px solid #e5e7eb;border-radius:8px;">
+      <p style="font-size:.75rem;color:#6b7280;font-weight:500;margin:0 0 8px;">Resultados — haz clic en una fila para seleccionar:</p>
+      <div style="overflow:auto;max-height:280px;border:1px solid #c4b5fd;border-radius:8px;box-shadow:0 2px 8px rgba(73,38,127,.1);">
         <table class="rtable">
           <thead><tr>
             <th class="th-c2">Cod. Barras</th><th class="th-c2">Ref. Interna</th>
@@ -419,6 +419,32 @@ input[type="file"]{display:none;}
         <div style="grid-column:span 4;"><p style="color:#9ca3af;font-size:.7rem;margin:0;">ID Externo</p><p id="man-sel-id" style="font-family:monospace;font-size:.7rem;color:#9ca3af;margin:0;word-break:break-all;">-</p></div>
       </div>
     </div>
+  </div>
+
+  <!-- Datos proveedor -->
+  <div class="card" style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <svg width="18" height="18" fill="none" stroke="#49267F" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      <span style="font-weight:600;color:#49267F;font-size:.875rem;">Datos del proveedor para esta homologacion</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div>
+        <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Codigo de producto del proveedor <span style="color:#FF3B1F;">*</span></label>
+        <input id="man-cod-prov" class="input-base" type="text" placeholder="Ej: 141646" style="font-family:monospace;"/>
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Precio (PVF sin IVA) <span style="color:#FF3B1F;">*</span></label>
+        <input id="man-precio" class="input-base" type="number" step="0.001" placeholder="Ej: 0.670"/>
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Nombre del producto del proveedor</label>
+        <input id="man-nom-prov" class="input-base" type="text" placeholder="Nombre en el catalogo del proveedor"/>
+      </div>
+    </div>
+    <button class="btn-violet" onclick="addManualRow()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Agregar a la lista
+    </button>
   </div>
 
   <!-- EML Batch Importer -->
@@ -461,32 +487,6 @@ input[type="file"]{display:none;}
     <div id="eml-error-global" class="hidden" style="margin-top:10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:.78rem;color:#991b1b;"></div>
   </div>
   <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
-
-  <!-- Datos proveedor -->
-  <div class="card" style="margin-bottom:20px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
-      <svg width="18" height="18" fill="none" stroke="#49267F" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-      <span style="font-weight:600;color:#49267F;font-size:.875rem;">Datos del proveedor para esta homologacion</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
-      <div>
-        <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Codigo de producto del proveedor <span style="color:#FF3B1F;">*</span></label>
-        <input id="man-cod-prov" class="input-base" type="text" placeholder="Ej: 141646" style="font-family:monospace;"/>
-      </div>
-      <div>
-        <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Precio (PVF sin IVA) <span style="color:#FF3B1F;">*</span></label>
-        <input id="man-precio" class="input-base" type="number" step="0.001" placeholder="Ej: 0.670"/>
-      </div>
-      <div>
-        <label style="font-size:.75rem;color:#6b7280;font-weight:500;display:block;margin-bottom:4px;">Nombre del producto del proveedor</label>
-        <input id="man-nom-prov" class="input-base" type="text" placeholder="Nombre en el catalogo del proveedor"/>
-      </div>
-    </div>
-    <button class="btn-violet" onclick="addManualRow()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-      Agregar a la lista
-    </button>
-  </div>
 
   <!-- Queue -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
@@ -532,6 +532,7 @@ var selProv={name:'',id:''},selProv2={name:'',id:''},selProv3={name:'',id:''};
 var manualQueue=[];
 var manSelectedProduct=null;
 var _c3Barras=null,_c3Ref=null,_c3Nom=null,_c3Lin=null,_c3Id=null;
+var _manLastMatches=[];
 
 function switchTab(tab){
   var tabs=['carga','comp','diffs','nuevos','manual'];
@@ -695,7 +696,12 @@ function restoreFromCache(){
 }
 
 // Restaurar al cargar la página
-document.addEventListener('DOMContentLoaded', restoreFromCache);
+restoreFromCache();
+
+// Search field listeners
+['man-search-barras','man-search-ref','man-search-nom'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', function(){ manualSearch(); });
+});
 
 function markLoaded(num,name,count){
   var z=document.getElementById('zone'+num);
@@ -1020,7 +1026,11 @@ function resolveC3Cols(){
   _c3Id=colFind(h,['ID','id']);
 }
 
+var _selectingProduct = false;
+
 function manualSearch(){
+  if(_selectingProduct) return;
+  if(manSelectedProduct) return; // don't re-search while a product is selected
   var qBar=document.getElementById('man-search-barras').value.trim();
   var qRef=document.getElementById('man-search-ref').value.trim();
   var qNom=document.getElementById('man-search-nom').value.trim().toLowerCase();
@@ -1037,30 +1047,45 @@ function manualSearch(){
     if(qRef&&ref.toLowerCase().indexOf(qRef.toLowerCase())<0) return false;
     if(qNom&&nom.indexOf(qNom)<0) return false;
     return true;
-  }).slice(0,60);
+  }).slice(0,30);
   var body=document.getElementById('man-results-body');
   if(!matches.length){
     body.innerHTML='<tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:16px;font-style:italic;font-size:.8rem;">Sin resultados</td></tr>';
     wrap.classList.remove('hidden');
     return;
   }
-  body.innerHTML=matches.map(function(r){
+  // Build rows with direct addEventListener (avoids any inline onclick / delegation issues)
+  body.innerHTML='';
+  _manLastMatches = matches;
+  matches.forEach(function(r, idx){
     var bar=sv(r[_c3Barras]);
     var ref=sv(_c3Ref?r[_c3Ref]:'');
     var nom=sv(_c3Nom?r[_c3Nom]:'');
     var lin=sv(_c3Lin?r[_c3Lin]:'');
     var id=sv(_c3Id?r[_c3Id]:'');
-    var bSafe=bar.replace(/'/g,"\\'");
-    var rSafe=ref.replace(/'/g,"\\'");
-    var nSafe=nom.replace(/'/g,"\\'");
-    var lSafe=lin.replace(/'/g,"\\'");
-    var iSafe=id.replace(/'/g,"\\'");
-    return '<tr style="cursor:pointer;" onmouseover="this.style.background=\'rgba(73,38,127,.08)\'" onmouseout="this.style.background=\'\'" onclick="selectManualProduct(\''+bSafe+'\',\''+rSafe+'\',\''+nSafe+'\',\''+lSafe+'\',\''+iSafe+'\')">'
-      +'<td style="font-family:monospace;font-size:.72rem;">'+htmlE(bar)+'</td>'
-      +'<td style="font-family:monospace;font-size:.72rem;font-weight:700;color:#49267F;">'+htmlE(ref)+'</td>'
-      +'<td data-tip="'+htmlE(nom)+'">'+trunc(nom,34)+'</td>'
-      +'</tr>';
-  }).join('');
+    var tr=document.createElement('tr');
+    tr.style.cssText='cursor:pointer;transition:background .12s;user-select:none;-webkit-user-select:none;';
+    tr.classList.add('man-result-row');
+    tr.setAttribute('data-idx', idx);
+    var td1=document.createElement('td');
+    td1.style.cssText='font-family:monospace;font-size:.72rem;white-space:nowrap;padding:8px;';
+    td1.textContent=bar;
+    var td2=document.createElement('td');
+    td2.style.cssText='font-family:monospace;font-size:.72rem;font-weight:700;color:#49267F;white-space:nowrap;padding:8px;';
+    td2.textContent=ref;
+    var td3=document.createElement('td');
+    td3.style.cssText='font-size:.78rem;font-weight:500;padding:8px;';
+    td3.textContent=nom;
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+    tr.addEventListener('mouseover',function(){this.style.background='#ede9fe';});
+    tr.addEventListener('mouseout',function(){this.style.background='';});
+    tr.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      selectManualProduct(bar,ref,nom,lin,id);
+    });
+    body.appendChild(tr);
+  });
   wrap.classList.remove('hidden');
 }
 
@@ -1068,14 +1093,15 @@ function selectManualProduct(bar,ref,nom,lin,id){
   manSelectedProduct={bar:bar,ref:ref,nom:nom,lin:lin,id:id};
   document.getElementById('man-sel-barras').textContent=bar||'-';
   document.getElementById('man-sel-ref').textContent=ref||'-';
-  document.getElementById('man-sel-nom').textContent=nom;
-  document.getElementById('man-sel-lin').textContent=lin||'-';
-  document.getElementById('man-sel-id').textContent=id;
-  document.getElementById('man-search-barras').value=bar;
-  document.getElementById('man-search-ref').value=ref;
-  document.getElementById('man-search-nom').value=nom;
-  document.getElementById('man-selected-wrap').classList.remove('hidden');
+  document.getElementById('man-sel-nom').textContent=nom||'-';
+  document.getElementById('man-sel-id').textContent=id||'-';
   document.getElementById('man-results-wrap').classList.add('hidden');
+  document.getElementById('man-selected-wrap').classList.remove('hidden');
+  _selectingProduct = true;
+  document.getElementById('man-search-barras').value='';
+  document.getElementById('man-search-ref').value='';
+  document.getElementById('man-search-nom').value='';
+  _selectingProduct = false;
   if(!document.getElementById('man-nom-prov').value)
     document.getElementById('man-nom-prov').value=nom;
   document.getElementById('man-cod-prov').focus();
